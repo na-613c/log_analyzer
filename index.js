@@ -31,7 +31,7 @@ const getParseToJSON = data => {
 
 let tmp = "";
 
-const worker = () => {
+const worker = (cb) => {
   fs.readFile(file, "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -46,11 +46,12 @@ const worker = () => {
     }
 
     if (tmp !== log) {
-      console.log(log);
+      cb(log);
     }
     tmp = log;
   });
 };
 
-// worker()
-setInterval(worker, 300);
+module.exports.worker = worker;
+// worker(console.log)
+// setInterval(()=>worker(console.log), 300);
