@@ -1,4 +1,5 @@
 const fs = require("fs");
+const file = "combat.log";
 
 const getDamage = str =>
   str
@@ -11,30 +12,45 @@ const getLogData = data => {
   let victim = d[0][1];
   let attacker = d[1][1];
   let damage = d[2][1];
-//   return {
-//     victim,
-//     attacker,
-//     damage,
-//   };
-return `${attacker} -> ${victim} : ${damage}`
+  //   return {
+  //     victim,
+  //     attacker,
+  //     damage,
+  //   };
+  return `${attacker} -> ${victim} : ${damage}`;
 };
 
 const getParseToJSON = data => {
-  return data
-    .split("\n")
+  let d = data.trim().split("\n").reverse()[0];
+  return [d]
     .map(getDamage)
     .reduce((p, c) => (c !== undefined ? [c, ...p] : p), [])
     .map(s => [s[0], s[1], s[3]])
     .map(getLogData);
 };
 
-fs.readFile("test3.txt", "utf8", (err, data) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
+let tmp = "";
 
-  let log = getParseToJSON(data);
+const worker = () => {
+  fs.readFile(file, "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
 
-  console.log(log);
-});
+    let log = getParseToJSON(data)[0];
+
+    if (log === undefined) {
+      // console.error('no damage');
+      return;
+    }
+
+    if (tmp !== log) {
+      console.log(log);
+    }
+    tmp = log;
+  });
+};
+
+// worker()
+setInterval(worker, 300);
