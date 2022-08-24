@@ -1,5 +1,5 @@
 const fs = require("fs");
-const file = "../data/combat.log";
+const file = "./data/combat.txt";
 
 const getDamage = str =>
   str
