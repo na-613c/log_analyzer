@@ -1,13 +1,16 @@
 {
   "name": "log-analizer-client",
   "version": "0.1.0",
+  "main": "public/electron.js",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "path": "^0.12.7",
     "fs": "^0.0.1-security",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -17,11 +20,14 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env NODE_ENV=development react-scripts start",
     "server": "node public/server/server.js",
+    "electron": "cross-env NODE_ENV=development electron .",
     "build": "react-scripts build",
+    "builder": "cross-env NODE_ENV=production electron-builder",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "release": "cross-env NODE_ENV=production npm run build && electron-builder"
   },
   "author": "na-613c",
   "license": "ISC",
@@ -42,5 +48,22 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^11.5.0",
+    "electron-builder": "^22.11.7",
+    "electron-packager": "^15.4.0",
+    "electron-rebuild": "^2.3.5"
+  },
+  "build": {
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "buildDependenciesFromSource": true,
+    "productName": "log-analizer"
   }
 }

@@ -1,32 +1,52 @@
-const express = require("express");
 const cors = require("cors");
-const app = express();
-const http = require("http");
-const server = http.createServer(app);
 const { Server } = require("socket.io");
 const { worker } = require("./fileReader");
-const io = new Server(server, { cors: { origin: "*" } });
+const http = require("http");
+const express = require("express");
+const { appendFile } = require("fs");
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+let _close;
 
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+(function () {
+  const app = express();
 
-io.on("connection", socket => {
-  console.log("a user connected");
+  const port = 5000;
+  require("body-parser").urlencoded({ extended: false });
 
-  const cb = msg => {
-    io.emit("new_log", msg);
-  };
-
-  setInterval(() => worker(cb), 300);
-
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
+  app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
   });
-});
+  app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 
-server.listen(5000, () => {
-  console.log("listening on *:5000");
-});
+  const server = http.createServer(app);
+  const io = new Server(server, { cors: { origin: "*" } });
+
+  io.on("connection", socket => {
+    console.log("a user connected");
+
+    const cb = msg => {
+      io.emit("new_log", msg);
+    };
+
+    setInterval(() => worker(cb), 300);
+
+    socket.on("disconnect", () => {
+      console.log("user disconnected");
+    });
+  });
+
+  require("events").EventEmitter.defaultMaxListeners = 0;
+
+  const serv = server.listen(port, () => {
+    console.log(`Server run: http://localhost:${port}`);
+  });
+
+  _close = () => {
+    serv.close(err => {
+      console.log("Http server closed.");
+      process.exit(err ? 1 : 0);
+    });
+  };
+})();
+
+module.exports = { _close };
